@@ -15,12 +15,7 @@ open.”.
 #### close
 > This command shall close the fat32 image. If the file system is not currently open your program shall output: “Error: File system not open.” Any command issued after a close, except for open, shall result in “Error: File system image must be opened first.”
 #### info
-> This command shall print out information about the file system in both hexadecimal and base 10:
-  * BPB_BytesPerSec
-  * BPB_SecPerClus
-  * BPB_RsvdSecCnt
-  * BPB_NumFATS
-  * BPB_FATSz32
+> This command shall print out information about the file system in both hexadecimal and base 10
 #### stat "filename" or "direcory name" EXAMPLE: `stat FOO.txt`
 > This command shall print the attributes and starting cluster number of the file or directory name.
 If the parameter is a directory name then the size shall be 0. If the file or directory does not exist
