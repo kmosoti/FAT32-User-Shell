@@ -4,7 +4,7 @@ A user space shell application that can interpret a FAT32 system image.
 # Compile
 To compile you will simply run `g++ msh.c -o msh` or `gcc msh.c -o msh`
 
-#Starting the shell
+# Starting the shell
 * simply type `./msh` to start the program and run the command `open <filename>` where filename is the FAT32 image
 
 # Supported Commands (Some WIP)
