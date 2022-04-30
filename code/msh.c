@@ -20,7 +20,7 @@
 // #define MAX_HISTORY 15
 // #define MAX_PID_HISTORY 15
 /*************************************************************************************************/
-FILE *fp;
+FILE *fp = NULL;
 
 char BS_OEMName[8]; //Offset 3 size 8
 int16_t BPB_BytesPerSec; //Offset 11 size 2
@@ -51,9 +51,9 @@ typedef struct __attribute__((__packed__)) DirectoryEntry {
   uint16_t DIR_FirstClusterHigh; //Offset 20 size 2 *High Word
   uint16_t DIR_FirstClusterLow; //Offset 26 size 2
   uint32_t DIR_FileSize;
-} DirectoryEntry;
+};
 
-DirectoryEntry dir[32];
+struct DirectoryEntry dir[16];
 /**************************************************************************************************/
 char* toLower(char* s);
 void openImageFile(char* file);
@@ -61,6 +61,7 @@ void closeImageFile();
 int LBATToOffset(int32_t sector);
 int16_t NextLB(uint32_t sector);
 void printImgInfo();
+void printDirectoryInfo();
 /*************************************************************************************************/
 
 int main(){
@@ -101,14 +102,18 @@ int main(){
 		if(!strcmp(toLower(token[0]),"open")){
       if(token[1] != NULL){
         if(strchr(token[1], ' ') == NULL){
-          openImageFile(token[1]);
+          if(fp==NULL){
+            openImageFile(token[1]);
+          }
+          else{
+            printf("Error: System image already opened.\n");
+          }
         }
         
       }
       else{
-        printf("Invalid filename.\n");
+        printf("Error: System image not found.\n");
       }
-      //printf("\nTest Sucessfull\n");
     }
     //close Command Logic
     else if(!strcmp(toLower(token[0]),"close")){
@@ -217,7 +222,10 @@ void openImageFile(char* file){
 
     //Get value of data pointing to directory
     fseek(fp, LBATToOffset(BPB_RootClus), SEEK_SET);
-    fread(&dir[0], 32, 32, fp);
+    for(int i = 0; i < 16; i++){
+      fread(&dir[i], sizeof(dir[i]), 1, fp);
+    }
+    
     printf("File Image loaded\n");
   }
 }
@@ -249,6 +257,7 @@ void printImgInfo(){
   printf("BPB_RsvdSecCnt:  0x%-6X | %d\n", BPB_RsvdSecCnt, BPB_RsvdSecCnt);
   printf("BPB_NumFATs:     0x%-6X | %d\n", BPB_NumFATs, BPB_NumFATs);
   printf("BPB_FATSz32:     0x%-6X | %d\n\n", BPB_FATSz32, BPB_FATSz32);
+  printDirectoryInfo();
 }
 
 
@@ -274,6 +283,25 @@ int16_t NextLB(uint32_t sector){
 char* toLower(char* s){
 	for(char *p = s; *p; p++) *p= tolower(*p);
 	return s;
+}
+
+/*
+  char  DIR_Name[11]; //Offset 0 size 11
+  uint8_t DIR_Attr; //Offset 11 size 1
+  uint8_t Unused1[8];
+  uint8_t Unused2[4];
+  uint16_t DIR_FirstClusterHigh; //Offset 20 size 2 *High Word
+  uint16_t DIR_FirstClusterLow; //Offset 26 size 2
+  uint32_t DIR_FileSize;
+*/
+void printDirectoryInfo(){
+  // printf("Name of Directory: %.11s\n", entry.DIR_Name);
+  // printf("Attr: %X\n", dir[0].DIR_Attr);
+  // printf("DIR_FileSize: %lu\n\n", dir[0].DIR_FileSize);
+  for(int i = 0; i < 16; i++){
+      printf("Directory[%d].DIR_Name = %s\n", i, dir[i].DIR_Name);
+  }
+  
 }
 
 
